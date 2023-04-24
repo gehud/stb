@@ -1,4 +1,53 @@
-project(stb LANGUAGES C)
+project(STB VERSION 1.0.0 LANGUAGES C)
 
 add_library(${PROJECT_NAME} INTERFACE)
-target_include_directories(${PROJECT_NAME} INTERFACE "..")
+add_library(STB::STB ALIAS STB)
+target_include_directories(
+    ${PROJECT_NAME} 
+    INTERFACE 
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
+	$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+)
+
+include(GNUInstallDirs)
+
+install(
+    TARGETS 
+    ${PROJECT_NAME}
+	EXPORT STBTargets
+	ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+	LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+	RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
+
+install(FILES ${CMAKE_CURRENT_LIST_DIR}/stb_image.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+
+install(
+	EXPORT STBTargets
+	FILE Targets.cmake
+	DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/STB
+	NAMESPACE STB::
+)
+
+include(CMakePackageConfigHelpers)
+
+configure_package_config_file( 
+	${CMAKE_CURRENT_LIST_DIR}/cmake/Config.cmake.in
+	${CMAKE_CURRENT_BINARY_DIR}/STBConfig.cmake
+	INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/STB
+	PATH_VARS CMAKE_INSTALL_LIBDIR
+)
+
+write_basic_package_version_file(
+	${CMAKE_CURRENT_BINARY_DIR}/STBConfigVersion.cmake
+	VERSION ${PROJECT_VERSION}
+	COMPATIBILITY SameMajorVersion
+)
+
+install(
+	FILES 
+    ${CMAKE_CURRENT_BINARY_DIR}/STBConfig.cmake
+	${CMAKE_CURRENT_BINARY_DIR}/STBConfigVersion.cmake
+	DESTINATION 
+    ${CMAKE_INSTALL_LIBDIR}/cmake/STB
+)
